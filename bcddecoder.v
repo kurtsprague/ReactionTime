@@ -1,7 +1,6 @@
-module BCDdecoder(binaryin,hexout);
+module BCDdecoder(binaryin,sevenseg);
 	input [3:0] binaryin;
-	input decin; 
-	output reg [6:0] hexout;
+	output reg [6:0] sevenseg;
 	always @(binaryin) begin
 		casex(binaryin)
 			4'b0000 : sevenseg = 7'b1000000; //0

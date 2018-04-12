@@ -4,7 +4,7 @@ input clk;
 input [7:0] num;
 input reset;
 input enable;
-output outled;
+output reg outled;
 
 reg [7:0] i = 8'h00;
 

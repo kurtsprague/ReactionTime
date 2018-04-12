@@ -1,10 +1,9 @@
-module clkdiv(clk,divtime, slowclk);
+module clkdiv(clk, slowclk);
 input clk;
-input divtime;
-output slowclk;
+output reg slowclk;
 
-parameter pclk = divtime;
-parameter i = 0;
+parameter pclk = 500000;
+integer i = 0;
 
 always@(posedge clk)
 begin 
@@ -15,6 +14,7 @@ begin
 			slowclk = slowclk^1;
 		end
 end
+
 
 endmodule
 

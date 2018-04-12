@@ -6,11 +6,10 @@ output [3:0] d;
 
 reg [3:0] d;
 
-parameter r = reset;
 
 always@(posedge clk)
 	begin
-		if(r)
+		if(reset)
 			d <= 0;
 		else if(d <= 9)
 			begin
