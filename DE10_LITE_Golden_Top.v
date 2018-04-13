@@ -131,28 +131,19 @@ wire delclk;
 wire clenable;
 wire [7:0] LFSRout;
 
-reg toggleenable;
-reg togglereset;
+wire enable;
 
 //=======================================================
 //  Structural coding
 //=======================================================
-always@(posedge KEY[0])begin
 
-togglereset = togglereset^1;
-
-
-end
-
-always@(posedge KEY[1])begin
-
-toggleenable = toggleenable^1;
-
-end
-
+statemachine S1(MAX10_CLK1_50,SW[0],SW[1],enable);
+assign LEDR[5] = enable;
+assign LEDR[8] = 1;
+assign LEDR[9] = 0;
 clkdiv A1(MAX10_CLK1_50,delclk);
-LFSR B1(MAX10_CLK1_50, toggleenable, togglereset,clenable,LFSRout);
-lighter C1(delclk,clenable,LFSRout, togglereset, LEDR[0]);
+LFSR B1(MAX10_CLK1_50, enable, clenable,LFSRout);
+lighter C1(delclk,clenable,LFSRout, LEDR[0]);
 
 
 endmodule
