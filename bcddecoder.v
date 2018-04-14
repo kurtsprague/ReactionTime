@@ -1,10 +1,7 @@
-module BCDdecoder(binaryin,enable,sevenseg);
+module BCDdecoder(binaryin,sevenseg);
 	input [3:0] binaryin;
-	input enable;
 	output reg [6:0] sevenseg;
 	always @(binaryin) begin
-		if(enable)
-		begin
 			casex(binaryin)
 				4'b0000 : sevenseg = 7'b1000000; //0
 				4'b0001 : sevenseg = 7'b1111001; //1
@@ -23,10 +20,5 @@ module BCDdecoder(binaryin,enable,sevenseg);
 				4'b1110 : sevenseg = 7'bxxxxxxx; //E
 				4'b1111 : sevenseg = 7'bxxxxxxx;	//f
 			endcase
-		end
-		else
-		begin
-			sevenseg = 7'b1111111;
-		end
 	end
 endmodule 

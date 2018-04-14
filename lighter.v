@@ -17,13 +17,13 @@ always@(posedge clk)
 			end
 			else begin
 				outled = 1;
-				enableout = 1;
+				enableout = 0;
 			end
 		end
 		else begin
 			i = 0;
 			outled = 0;
-			enableout = 0;
+			enableout = 1;
 		end
 	end
 endmodule

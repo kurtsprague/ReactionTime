@@ -132,7 +132,7 @@ wire clenable;
 wire [7:0] LFSRout;
 
 wire enable;
-wire BCD0enable;
+wire BCD0clear;
 wire BCD1enable;
 wire BCD2enable;
 wire BCD3enable;
@@ -143,24 +143,23 @@ wire BCDdecoderenable2;
 wire[3:0] BCD0;
 wire[3:0] BCD1;
 wire[3:0] BCD2;
+wire clear;
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
 statemachine S1(MAX10_CLK1_50,SW[0],SW[1],SW[2],enable,BCDstop);
-assign LEDR[5] = enable;
-assign LEDR[7] = BCDstop;
 clkdiv A1(MAX10_CLK1_50,delclk);
 LFSR B1(MAX10_CLK1_50, enable, clenable,LFSRout);
-lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0enable);
-BCDcounter BCDC0(delclk,BCD0enable,BCDstop,BCD0,BCD1enable,BCDdecoderenable0);
-BCDcounter BCDC1(delclk,BCD1enable,BCDstop,BCD1,BCD2enable,BCDdecoderenable1);
-BCDcounter BCDC2(delclk,BCD2enable,BCDstop,BCD2,BCD3enable,BCDdecoderenable2);
+lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0clear);
 
-BCDdecoder BCDD0(BCD0,BCDdecoderenable0,HEX0[6:0]);
-BCDdecoder BCDD1(BCD1,BCDdecoderenable1,HEX1[6:0]);
-BCDdecoder BCDD2(BCD2,BCDdecoderenable2,HEX2[6:0]);
+
+bcd3counter BCD30(delclk,BCD0clear,BCDstop,BCD0,BCD1,BCD2);
+
+BCDdecoder BCDD0(BCD0,HEX0[6:0]);
+BCDdecoder BCDD1(BCD1,HEX1[6:0]);
+BCDdecoder BCDD2(BCD2,HEX2[6:0]);
 
 
 endmodule
