@@ -132,18 +132,56 @@ wire clenable;
 wire [7:0] LFSRout;
 
 wire enable;
+wire BCD0clear;
+wire BCD1enable;
+wire BCD2enable;
+wire BCD3enable;
+wire BCDstop;
+wire BCDdecoderenable0;
+wire BCDdecoderenable1; 
+wire BCDdecoderenable2;
+wire[3:0] BCD0;
+wire[3:0] BCD1;
+wire[3:0] BCD2;
+reg en;
+reg st;
+reg [11:0] tot;
+reg [3:0] sw0;
+reg [3:0] sw1;
+reg [3:0] sw2;
+reg scoreswap;
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
-statemachine S1(MAX10_CLK1_50,SW[0],SW[1],enable);
-assign LEDR[5] = enable;
-assign LEDR[8] = 1;
-assign LEDR[9] = 0;
+always@(posedge KEY[0])
+begin
+	en = en^1;
+end
+
+always@(posedge KEY[1])
+begin
+	st = st^1;
+end
+
+statemachine S1(MAX10_CLK1_50,SW[0],en,st,enable,BCDstop,scoreswap);
 clkdiv A1(MAX10_CLK1_50,delclk);
 LFSR B1(MAX10_CLK1_50, enable, clenable,LFSRout);
-lighter C1(delclk,clenable,LFSRout, LEDR[0]);
+lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0clear);
+
+
+bcd3counter BCD30(delclk,BCD0clear,BCDstop,BCD0,BCD1,BCD2,tot);
+highscore hs1(BCD0,BCD1,BCD2,tot,hsd0,hsd1,hsd2);
+
+digmux d0(BCD0,hsd0,scoreswap, sw0);
+digmux d1(BCD0,hsd0,scoreswap, sw1);
+digmux d2(BCD0,hsd0,scoreswap, sw2);
+
+BCDdecoder BCDD0(sw0,HEX0[6:0]);
+BCDdecoder BCDD1(sw1,HEX1[6:0]);
+BCDdecoder BCDD2(sw2,HEX2[6:0]);
+
 
 
 endmodule
