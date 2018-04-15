@@ -6,7 +6,7 @@ module statemachine(clock,reset,in,in1,out, BCDstop);
 	//A is reset state, B is program is started
 	parameter A = 2'b00, B = 2'b01, C = 2'b10;
 	
-	always@(in,in1,y) begin
+	always@(posedge in,posedge in1,posedge y) begin
 		case(y)
 			A : if(in)
 				 begin
