@@ -10,7 +10,7 @@ output reg BCDdecoderenable;
 reg [3:0] d;
 
 
-always@(posedge clk)
+always@(posedge clk, posedge enable)
 	begin
 		if(enable)
 		begin
@@ -32,10 +32,7 @@ always@(posedge clk)
 		end
 		else
 		begin
-			d <= 0;
-			count <= 0;
 			ripplecarryout <= 0;
-			BCDdecoderenable <= 0;
 		end
 	end
 endmodule

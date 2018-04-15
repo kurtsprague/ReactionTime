@@ -144,12 +144,30 @@ wire[3:0] BCD0;
 wire[3:0] BCD1;
 wire[3:0] BCD2;
 wire clear;
+wire outputcomplete;
+reg[11:0] prevhigh;
+reg[11:0] currenthigh;
+wire[11:0] highscore;
+wire highscoreenable;
+wire[11:0] currentrt;
+wire[11:0] modeoutput;
+reg button0state;
+reg button1state;
 
 //=======================================================
 //  Structural coding
 //=======================================================
+always@(posedge KEY[0])
+begin
+	button0state = button0state ^ 1;
+end
 
-statemachine S1(MAX10_CLK1_50,SW[0],SW[1],SW[2],enable,BCDstop);
+always@(posedge KEY[1])
+begin
+	button1state = button1state ^ 1;
+end
+
+statemachine S1(MAX10_CLK1_50,SW[0],button0state,button1state,SW[1],enable,BCDstop,outputcomplete,highscoreenable);
 clkdiv A1(MAX10_CLK1_50,delclk);
 LFSR B1(MAX10_CLK1_50, enable, clenable,LFSRout);
 lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0clear);
@@ -157,9 +175,28 @@ lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0clear);
 
 bcd3counter BCD30(delclk,BCD0clear,BCDstop,BCD0,BCD1,BCD2);
 
-BCDdecoder BCDD0(BCD0,HEX0[6:0]);
-BCDdecoder BCDD1(BCD1,HEX1[6:0]);
-BCDdecoder BCDD2(BCD2,HEX2[6:0]);
+assign currentrt[11:8] = BCD2;
+assign currentrt[7:4] = BCD1;
+assign currentrt[3:0] = BCD0;
 
+assign LEDR[9] = outputcomplete;
+always@(posedge outputcomplete)
+begin
+	currenthigh[11:8] = BCD2;
+	currenthigh[7:4] = BCD1;
+	currenthigh[3:0] = BCD0;
+	if(prevhigh == 12'b000000000000)
+		prevhigh = currenthigh;
+	else if(prevhigh > currenthigh)
+		prevhigh = currenthigh;
+end
+
+assign highscore = prevhigh;
+
+twotoonemux M1(highscoreenable,currentrt,highscore,modeoutput);
+
+BCDdecoder D1(modeoutput[3:0],HEX0[6:0]);
+BCDdecoder D2(modeoutput[7:4],HEX1[6:0]);
+BCDdecoder D3(modeoutput[11:8],HEX2[6:0]);
 
 endmodule

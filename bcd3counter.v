@@ -1,7 +1,6 @@
-module bcd3counter(clock,clear,enable,BCD0,BCD1,BCD2, tot);
+module bcd3counter(clock,clear,enable,BCD0,BCD1,BCD2);
 	input clock, clear, enable; 
 	output reg [3:0] BCD0, BCD1, BCD2;
-	output reg [7:0] tot;
 	
 	always@(posedge clock)
 	begin
@@ -13,7 +12,6 @@ module bcd3counter(clock,clear,enable,BCD0,BCD1,BCD2, tot);
 		end
 		else if(enable)
 		begin
-			tot <= tot + 1;
 			if((BCD0 == 4'b1001) && (BCD1 == 4'b1001))
 			begin
 				BCD0 <= 0;
