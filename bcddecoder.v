@@ -1,6 +1,16 @@
+// ====================================
+//   Ver  :| Authors					
+//   V1.1 :| Andrew Zhu & Kurt Sprague
+// ====================================
+
+//module for decoder taking in binary
+//outputs the bits for a seven seg display representation
 module BCDdecoder(binaryin,sevenseg);
 	input [3:0] binaryin;
 	output reg [6:0] sevenseg;
+	//always block that triggers off of the change of input
+	//case statement that goes up to 9
+	// everything else is a dont care
 	always @(binaryin) begin
 			casex(binaryin)
 				4'b0000 : sevenseg = 7'b1000000; //0
