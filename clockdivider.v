@@ -2,7 +2,7 @@ module clkdiv(clk, slowclk);
 input clk;
 output reg slowclk;
 
-parameter pclk = 500000;
+parameter pclk = 25000;
 integer i = 0;
 
 always@(posedge clk)

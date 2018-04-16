@@ -129,7 +129,7 @@ module DE10_LITE_Golden_Top(
 wire delclk;
 
 wire clenable;
-wire [7:0] LFSRout;
+wire [6:0] LFSRout;
 
 wire enable;
 wire BCD0clear;
@@ -150,9 +150,15 @@ reg[11:0] currenthigh;
 wire[11:0] highscore;
 wire highscoreenable;
 wire[11:0] currentrt;
-wire[11:0] modeoutput;
+wire[41:0] modeoutput;
 reg button0state;
 reg button1state;
+wire[3:0] LFSR0;
+wire[3:0] LFSR1;
+wire[41:0] outbuffs;
+wire[41:0] high;
+wire[41:0] currentreaction;
+wire buffclock;
 
 //=======================================================
 //  Structural coding
@@ -179,7 +185,12 @@ assign currentrt[11:8] = BCD2;
 assign currentrt[7:4] = BCD1;
 assign currentrt[3:0] = BCD0;
 
-assign LEDR[9] = outputcomplete;
+BCDdecoder D1(currentrt[3:0],currentreaction[6:0]);
+BCDdecoder D2(currentrt[7:4],currentreaction[13:7]);
+BCDdecoder D3(currentrt[11:8],currentreaction[20:14]);
+assign currentreaction[34:21] = 14'b11111111111111;
+assign currentreaction[41:35] = 7'b0101111;
+
 always@(posedge outputcomplete)
 begin
 	currenthigh[11:8] = BCD2;
@@ -193,10 +204,31 @@ end
 
 assign highscore = prevhigh;
 
-twotoonemux M1(highscoreenable,currentrt,highscore,modeoutput);
+BCDdecoder D4(highscore[3:0],high[6:0]);
+BCDdecoder D5(highscore[7:4],high[13:7]);
+BCDdecoder D6(highscore[11:8],high[20:14]);
+assign high[27:21] = 7'b1111111;
+assign high[41:28] = 14'b00010010010010;
 
-BCDdecoder D1(modeoutput[3:0],HEX0[6:0]);
-BCDdecoder D2(modeoutput[7:4],HEX1[6:0]);
-BCDdecoder D3(modeoutput[11:8],HEX2[6:0]);
+defparam A2.pclk = 5000000;
+clkdiv A2(MAX10_CLK1_50,buffclock);
+gobuffs GB1(buffclock,outbuffs);
+
+threetoonemux M1(enable,highscoreenable,currentreaction,high,outbuffs,modeoutput);
+
+assign HEX5[6:0] = modeoutput[41:35];
+assign HEX4[6:0] = modeoutput[34:28];
+assign HEX3[6:0] = modeoutput[27:21];
+assign HEX2[6:0] = modeoutput[20:14];
+assign HEX1[6:0] = modeoutput[13:7];
+assign HEX0[6:0] = modeoutput[6:0];
+
+assign HEX5[7] = 1;
+assign HEX4[7] = 1;
+assign HEX3[7] = 1;
+assign HEX2[7] = 1;
+assign HEX1[7] = 1;
+assign HEX0[7] = 1;
+
 
 endmodule
