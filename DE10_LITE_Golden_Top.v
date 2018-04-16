@@ -166,12 +166,12 @@ wire[13:0] stopin;
 //=======================================================
 //  Structural coding
 //=======================================================
-always@(posedge KEY[0])
+always@(negedge KEY[0])
 begin
 	button0state = button0state ^ 1;
 end
 
-always@(posedge KEY[1])
+always@(negedge KEY[1])
 begin
 	button1state = button1state ^ 1;
 end
