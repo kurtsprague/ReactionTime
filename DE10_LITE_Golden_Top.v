@@ -1,7 +1,7 @@
-// ====================================
-//   Ver  :| Authors					
-//   V1.1 :| Andrew Zhu & Kurt Sprague
-// ====================================
+// ============================================================================
+//   Ver  :| Author					:| Mod. Date :| Changes Made:
+//   V1.1 :| Alexandra Du			:| 06/01/2016:| Added Verilog file
+// ============================================================================
 
 
 //=======================================================
@@ -126,15 +126,11 @@ module DE10_LITE_Golden_Top(
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
-
-//wire for the delayed clock
 wire delclk;
 
-//wires for LFSR outputs
 wire clenable;
 wire [6:0] LFSRout;
 
-//wire declarations for BCDcounter
 wire enable;
 wire BCD0clear;
 wire BCD1enable;
@@ -147,75 +143,59 @@ wire BCDdecoderenable2;
 wire[3:0] BCD0;
 wire[3:0] BCD1;
 wire[3:0] BCD2;
-
-//wire declarations for statemachine
 wire clear;
 wire outputcomplete;
-
-//wire declaration for highscore and the 2to1 mux
 reg[11:0] prevhigh;
 reg[11:0] currenthigh;
 wire[11:0] highscore;
 wire highscoreenable;
 wire[11:0] currentrt;
 wire[41:0] modeoutput;
-
-//reg for the buttons to be solid values
 reg button0state;
 reg button1state;
-
-//wire declarations for go buffs EC
 wire[3:0] LFSR0;
 wire[3:0] LFSR1;
 wire[41:0] outbuffs;
 wire[41:0] high;
 wire[41:0] currentreaction;
 wire buffclock;
+wire [2:0] rand3bitlfsr;
+wire randin;
+wire[13:0] stopin; 
 
 //=======================================================
 //  Structural coding
 //=======================================================
-
-//always statements to make the button state a definite high or low based
-//off of key switch
 always@(posedge KEY[0])
 begin
 	button0state = button0state ^ 1;
 end
 
-always@(posedge KEY[1])
+always@(posedge randin)
 begin
 	button1state = button1state ^ 1;
 end
 
-
-//instantiation of our modules
 statemachine S1(MAX10_CLK1_50,SW[0],button0state,button1state,SW[1],enable,BCDstop,outputcomplete,highscoreenable);
-
 clkdiv A1(MAX10_CLK1_50,delclk);
-
+lfsrstop LF1(MAX10_CLK1_50,enable,rand3bitlfsr);
+randomstopmux RM1(SW[3],SW[4],SW[5],SW[6],SW[7],SW[8],SW[9],KEY[1],rand3bitlfsr,randin);
+randominputsevenseg RISS1(rand3bitlfsr,currentreaction[34:21]);
 LFSR B1(MAX10_CLK1_50, enable, clenable,LFSRout);
-
 lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0clear);
+
 
 bcd3counter BCD30(delclk,BCD0clear,BCDstop,BCD0,BCD1,BCD2);
 
-
-//reg assignment for each value of a score
 assign currentrt[11:8] = BCD2;
 assign currentrt[7:4] = BCD1;
 assign currentrt[3:0] = BCD0;
 
-//Decoder instantiation, and storage for reaction time
 BCDdecoder D1(currentrt[3:0],currentreaction[6:0]);
 BCDdecoder D2(currentrt[7:4],currentreaction[13:7]);
 BCDdecoder D3(currentrt[11:8],currentreaction[20:14]);
-assign currentreaction[34:21] = 14'b11111111111111;
 assign currentreaction[41:35] = 7'b0101111;
 
-//the logic behind high score
-//taking each value and comparing to the previous high
-//if previous high is all 0 ie: the first, set that value to new high score
 always@(posedge outputcomplete)
 begin
 	currenthigh[11:8] = BCD2;
@@ -229,22 +209,18 @@ end
 
 assign highscore = prevhigh;
 
-//decoder instantiation for high score
 BCDdecoder D4(highscore[3:0],high[6:0]);
 BCDdecoder D5(highscore[7:4],high[13:7]);
 BCDdecoder D6(highscore[11:8],high[20:14]);
 assign high[27:21] = 7'b1111111;
 assign high[41:28] = 14'b00010010010010;
 
-//instantiation for go buffs
 defparam A2.pclk = 5000000;
 clkdiv A2(MAX10_CLK1_50,buffclock);
 gobuffs GB1(buffclock,outbuffs);
 
-//multiplexer for either buffs, high score, or regular
 threetoonemux M1(enable,highscoreenable,currentreaction,high,outbuffs,modeoutput);
 
-//display assignment for correct multiplexer output
 assign HEX5[6:0] = modeoutput[41:35];
 assign HEX4[6:0] = modeoutput[34:28];
 assign HEX3[6:0] = modeoutput[27:21];
@@ -252,7 +228,6 @@ assign HEX2[6:0] = modeoutput[20:14];
 assign HEX1[6:0] = modeoutput[13:7];
 assign HEX0[6:0] = modeoutput[6:0];
 
-//getting rid of all decimals
 assign HEX5[7] = 1;
 assign HEX4[7] = 1;
 assign HEX3[7] = 1;
