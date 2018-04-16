@@ -1,7 +1,19 @@
+// ====================================
+//   Ver  :| Authors					
+//   V1.1 :| Andrew Zhu & Kurt Sprague
+// ====================================
+
+//bcd counter module taking in clock, clear, and an enable
+//outputs 3 registers with each a number
+
 module bcd3counter(clock,clear,enable,BCD0,BCD1,BCD2);
 	input clock, clear, enable; 
 	output reg [3:0] BCD0, BCD1, BCD2;
 	
+	//always triggers on clock
+	//if clear is enabled all set to 0
+	//else BCD0 goes to 9 then gets reset, each time this happens BCD1 gets added by one
+	//repeat for BCD2
 	always@(posedge clock)
 	begin
 		if(clear)

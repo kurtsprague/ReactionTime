@@ -1,4 +1,11 @@
+// ====================================
+//   Ver  :| Authors					
+//   V1.1 :| Andrew Zhu & Kurt Sprague
+// ====================================
+
+//module for go buffs taking in a clock and outputing the register containing the Go bUFFS
 module gobuffs(clock,out);
+
 
 input clock;
 output[41:0] out;
@@ -19,6 +26,7 @@ end
 
 assign out = outbuf[97:42];
 
+//always block for looping the scroll
 
 always@(posedge clock)
 begin
