@@ -166,12 +166,12 @@ wire[13:0] stopin;
 //=======================================================
 //  Structural coding
 //=======================================================
-always@(negedge KEY[0])
+always@(posedge KEY[0])
 begin
 	button0state = button0state ^ 1;
 end
 
-always@(negedge KEY[1])
+always@(posedge randin)
 begin
 	button1state = button1state ^ 1;
 end
@@ -180,9 +180,9 @@ statemachine S1(MAX10_CLK1_50,SW[0],button0state,button1state,SW[1],enable,BCDst
 clkdiv A1(MAX10_CLK1_50,delclk);
 
 //random switch input code, uncomment this, then remove line 199
-/*lfsrstop LF1(MAX10_CLK1_50,enable,rand3bitlfsr);
+lfsrstop LF1(MAX10_CLK1_50,enable,rand3bitlfsr);
 randomstopmux RM1(SW[3],SW[4],SW[5],SW[6],SW[7],SW[8],SW[9],KEY[1],rand3bitlfsr,randin);
-randominputsevenseg RISS1(rand3bitlfsr,currentreaction[34:21]);*/
+randominputsevenseg RISS1(rand3bitlfsr,currentreaction[34:21]);
 LFSR B1(MAX10_CLK1_50, enable, clenable,LFSRout);
 lighter C1(delclk,clenable,LFSRout, LEDR[0],BCD0clear);
 
@@ -196,7 +196,7 @@ assign currentrt[3:0] = BCD0;
 BCDdecoder D1(currentrt[3:0],currentreaction[6:0]);
 BCDdecoder D2(currentrt[7:4],currentreaction[13:7]);
 BCDdecoder D3(currentrt[11:8],currentreaction[20:14]);
-assign currentreaction[34:21] = 14'b11111111111111;
+//assign currentreaction[34:21] = 14'b11111111111111;
 assign currentreaction[41:35] = 7'b0101111;
 
 always@(posedge outputcomplete)
